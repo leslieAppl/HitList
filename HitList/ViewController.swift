@@ -26,7 +26,21 @@ class ViewController: UIViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
     }
     
-    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Person")
+        
+        do {
+            people = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+    }
 
     func save(name: String) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
@@ -36,7 +50,7 @@ class ViewController: UIViewController {
         ///Entity instance
         let entity = NSEntityDescription.entity(forEntityName: "Person", in: managedContext)!
         
-        ///attribute instance
+        ///NSManagedObject  instance - one-to-one mapping between entities in the data model editor and class in your code.
         let person = NSManagedObject(entity: entity, insertInto: managedContext)
         person.setValue(name, forKey: "name")
         
